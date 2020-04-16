@@ -7,6 +7,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mymusic.R
 import com.example.mymusic.model.entity.Music
+import com.example.mymusic.util.getTimeString
 
 /**
  * 本地音乐播放列表recyclerView的适配器
@@ -42,12 +43,5 @@ class LMRcyViewAdapter(private val mMusicList:ArrayList<Music>,
         holder.nameTextView.text = music.name
     }
 
-    private fun getTimeString(duration:Int):String{
-        val second =
-            if (duration%1000!=0) duration/1000+1
-            else duration/1000
-        val min = second/60
-        val s = second%60
-        return "$min:$s"
-    }
+
 }

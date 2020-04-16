@@ -12,6 +12,9 @@
         <action
             android:id="@+id/action_mainFragment_to_localMusicFragment"
             app:destination="@id/localMusicFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_playFragment"
+            app:destination="@id/playFragment" />
     </fragment>
 
     <fragment
@@ -19,4 +22,10 @@
         android:name="com.example.mymusic.view.fragment.LocalMusicFragment"
         android:label="fragment_local_music"
         tools:layout="@layout/fragment_local_music" />
+    <fragment
+        android:id="@+id/playFragment"
+        android:name="com.example.mymusic.view.fragment.PlayFragment"
+        android:label="fragment_play"
+        tools:layout="@layout/fragment_play" />
+
 </navigation>

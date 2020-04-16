@@ -53,8 +53,18 @@ class MainActivity : AppCompatActivity() {
     fun navBackStack() = navController.popBackStack()
     fun playMusic(list:ArrayList<Music>,position:Int){
         Log.d("MainActivity","播放音乐$position")
-        mBinder.playMusicIndex(list,position)
-    }
+        mBinder.playMusicIndex(list,position) }
+    fun playNextMusic() = mBinder.nextMusic()
+    fun playPreviousMusic() = mBinder.previousMusic()
+    fun pauseMusic() = mBinder.pausePlay()
+    fun continueMusic() = mBinder.continuePlay()
+    fun getCurrentTime():Int = mBinder.currentTime()
+    fun subscribe(name: String,observer:(music:Music)->Unit) = mBinder.subscribe(name,observer)
+    fun unSubscribe(name:String) = mBinder.unSubscribe(name)
+    fun getCurrentMusic() = mBinder.getCurrentMusic()
+    fun isPlaying() = mBinder.isPlaying()
+    fun seekTo(progress:Int)=mBinder.seekToProcess(progress)
+
     fun showToast(string:String){
         if (toast==null) toast = Toast.makeText(this,string,Toast.LENGTH_SHORT)
         else{
