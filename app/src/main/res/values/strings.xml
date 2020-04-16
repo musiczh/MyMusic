@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">MyMusic</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="image_description">image description</string>
+    <string name="local">本地</string>
+    <string name="download">下载</string>
+    <string name="recent">最近</string>
+    <string name="title_activity_main2">Main2Activity</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="this_is_a_text">this is a text</string>
+</resources>
