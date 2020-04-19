@@ -19,12 +19,12 @@ import com.example.mymusic.R
 import com.example.mymusic.model.entity.Music
 import com.example.mymusic.util.getTimeString
 import com.example.mymusic.util.setTimeTask
+import com.example.mymusic.viewModel.FraMainViewModel
 import com.example.mymusic.viewModel.FragmentPlayViewModel
-import java.util.*
 import java.util.concurrent.ScheduledFuture
 
 /**
- * A simple [Fragment] subclass.
+ * 播放详情页
  */
 class PlayFragment : Fragment() {
     lateinit var viewModel: FragmentPlayViewModel
@@ -43,11 +43,9 @@ class PlayFragment : Fragment() {
 
     private val handle = Handler(){
         val bundle = it.data
-        val progress = bundle.getInt("progress")
-        val current = bundle.getString("current")
+        val current = bundle.getInt("current")
         if (viewModel.state.value==FragmentPlayViewModel.STATE_PLAYING&&ifRefreshSeekBar){
-            seekBar.progress = progress
-            tvCurrentTime.text = current
+            viewModel.currentTime.value = current
         }
         true
     }
@@ -70,26 +68,21 @@ class PlayFragment : Fragment() {
         initLiveBinding()
         initViewModelData()
         startSeekTask()
-
         mainActivity.subscribe("play"){
-            viewModel.let {self->
-                self.musicName.value = it.name
-                self.duration.value = it.duration
-                self.progress.value = 0
-                self.state.value = FragmentPlayViewModel.STATE_PLAYING
-                self.currentTime.value = 0
-            }
+            viewModel.observe(it)
         }
     }
 
     //初始化数据绑定
     private fun initLiveBinding(){
         viewModel.let{ self ->
-            self.currentTime.observe(this){ tvCurrentTime.text = getTimeString(it) }
-            self.currentTime.observe(this){ tvCurrentTime.text = getTimeString(it) }
-            self.duration.observe(this){ tvDuration.text = getTimeString(it)}
+            self.currentTime.observe(this){
+                tvCurrentTime.text = getTimeString(it)
+                seekBar.progress = it }
+            self.duration.observe(this){
+                tvDuration.text = getTimeString(it)
+                seekBar.max = it }
             self.musicName.observe(this){ textViewTittle.text = it}
-            self.progress.observe(this){ seekBar.progress = it}
             self.state.observe(this){
                 if (it==FragmentPlayViewModel.STATE_PAUSE||it==FragmentPlayViewModel.STATE_NULL)
                     buttonPlay.background = mainActivity.getDrawable(R.drawable.play_black)
@@ -107,17 +100,16 @@ class PlayFragment : Fragment() {
         music?.let {
             viewModel.duration.value = music.duration
             viewModel.musicName.value = music.name
-            viewModel.progress.value = cTime*100/music.duration
         }
-        viewModel.apply {
-            currentTime.value = cTime
-            state.value = when{
-                isPlaying -> FragmentPlayViewModel.STATE_PLAYING
-                !isPlaying&&cTime>0 -> FragmentPlayViewModel.STATE_PAUSE
-                else -> FragmentPlayViewModel.STATE_NULL
-            }
+        isPlaying?.let{
+            if  (it){
+                viewModel.currentTime.value = cTime
+                viewModel.state.value = FragmentPlayViewModel.STATE_PLAYING
+            }else if (viewModel.state.value!=FragmentPlayViewModel.STATE_NULL)
+                viewModel.state.value = FraMainViewModel.STATE_PAUSE
         }
     }
+
 
     //初始化控件
     private fun initControls(view:View){
@@ -146,19 +138,21 @@ class PlayFragment : Fragment() {
         }
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                viewModel.currentTime.value = viewModel.duration.value!!*progress/100
-                viewModel.progress.value = progress
+                if (fromUser) viewModel.currentTime.value = progress
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
                 ifRefreshSeekBar = false
-
             }
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 ifRefreshSeekBar = true
-                if(seekBar!=null)
-                     mainActivity.seekTo(seekBar.progress)
+                if (viewModel.state.value==FragmentPlayViewModel.STATE_NULL||seekBar==null) return
+                if(viewModel.state.value==FragmentPlayViewModel.STATE_PAUSE){
+                    mainActivity.continueMusic()
+                    viewModel.state.value = FragmentPlayViewModel.STATE_PLAYING
+                    }
+                mainActivity.seekTo(seekBar.progress)
             }
 
         })
@@ -170,12 +164,9 @@ class PlayFragment : Fragment() {
     private fun startSeekTask(){
         scheduledFuture = setTimeTask(1){
             val current = mainActivity.getCurrentTime()
-            val progress = current*100/ viewModel.duration.value!!
-            val currentString = getTimeString(current)
             val msg = Message.obtain()
             val bundle = Bundle()
-            bundle.putInt("progress",progress)
-            bundle.putString("current",currentString)
+            bundle.putInt("current",current)
             msg.data=bundle
             handle.sendMessage(msg)
             Log.d("huan_seekBar","循环一次currentTime=$current")
