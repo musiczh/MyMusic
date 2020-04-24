@@ -43,5 +43,11 @@ class LMRcyViewAdapter(private val mMusicList:ArrayList<Music>,
         holder.nameTextView.text = music.name
     }
 
+    fun changeData(list: List<Music>){
+        mMusicList.clear()
+        mMusicList.addAll(list)
+        this.notifyDataSetChanged()
+    }
+
 
 }

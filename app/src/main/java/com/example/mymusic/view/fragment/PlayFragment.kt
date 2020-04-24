@@ -13,7 +13,7 @@ import android.widget.Button
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.observe
+import androidx.lifecycle.Observer
 import com.example.mymusic.MainActivity
 import com.example.mymusic.R
 import com.example.mymusic.model.entity.Music
@@ -76,18 +76,18 @@ class PlayFragment : Fragment() {
     //初始化数据绑定
     private fun initLiveBinding(){
         viewModel.let{ self ->
-            self.currentTime.observe(this){
+            self.currentTime.observe(viewLifecycleOwner, Observer {
                 tvCurrentTime.text = getTimeString(it)
-                seekBar.progress = it }
-            self.duration.observe(this){
+                seekBar.progress = it })
+            self.duration.observe(viewLifecycleOwner, Observer {
                 tvDuration.text = getTimeString(it)
-                seekBar.max = it }
-            self.musicName.observe(this){ textViewTittle.text = it}
-            self.state.observe(this){
+                seekBar.max = it  })
+            self.musicName.observe(viewLifecycleOwner, Observer { textViewTittle.text = it})
+            self.state.observe(viewLifecycleOwner, Observer {
                 if (it==FragmentPlayViewModel.STATE_PAUSE||it==FragmentPlayViewModel.STATE_NULL)
                     buttonPlay.background = mainActivity.getDrawable(R.drawable.play_black)
                 else buttonPlay.background = mainActivity.getDrawable(R.drawable.pause_black)
-            }
+            })
         }
 
     }

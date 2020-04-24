@@ -12,13 +12,9 @@ import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
-import androidx.navigation.Navigation
-import androidx.navigation.findNavController
-import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.fragment.NavHostFragment.findNavController
+import androidx.navigation.Navigation.findNavController
 import com.example.mymusic.model.entity.Music
 import com.example.mymusic.service.MusicService
 
@@ -51,12 +47,12 @@ class MainActivity : AppCompatActivity() {
         val intentService = Intent(this,MusicService::class.java)
         bindService(intentService,connection,Context.BIND_AUTO_CREATE)
 
-        navController = findNavController(R.id.main_fragment_container)
+        navController = findNavController(this,R.id.main_fragment_container)
     }
 
     fun navigate(id:Int) = navController.navigate(id)
     fun navBackStack() = navController.popBackStack()
-    fun playMusic(list:ArrayList<Music>,position:Int){
+    fun playMusic(list:ArrayList<Music> , position:Int){
         Log.d("MainActivity","播放音乐$position")
         mBinder?.playMusicIndex(list,position) }
     fun playNextMusic() = mBinder?.nextMusic()

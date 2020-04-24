@@ -1,19 +1,16 @@
 package com.example.mymusic.service
 
 import android.app.Service
-import android.content.ContentUris
-import android.content.Context
 import android.content.Intent
 import android.media.MediaPlayer
 import android.os.Binder
-import android.os.Build
 import android.os.IBinder
-import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
 import com.example.mymusic.MainActivity
+import com.example.mymusic.model.Repository
 import com.example.mymusic.model.entity.Music
-import java.lang.Exception
+import java.io.IOException
 import kotlin.random.Random
 
 /**
@@ -110,30 +107,16 @@ class MusicService : Service() {
     private fun playCurrentMusic(){
         Log.d("MusicService","播放音乐")
         noticeObserver()
+        Repository.insertHisMusic(mMusicList[currentIndex])
         mMediaPlayer.reset()
         //根据版本获取内容uri
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
-                val uri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                    mMusicList[currentIndex].id)
-                val parcelFileDescriptor  = MainActivity.mContext.contentResolver.openFileDescriptor(uri,"r")
-                if (parcelFileDescriptor==null){
-                    Log.d("huan_MusicService","parcelFileDescriptor为空")
-                    playNextMusic()
-                }
-                else {
-                    Log.d("huan_MusicService","parcelFileDescriptor不为空")
-                    mMediaPlayer.setDataSource(parcelFileDescriptor.fileDescriptor)
-                    parcelFileDescriptor.close()
-                }
-
-            }else{
-                val uri = mMusicList[currentIndex].uri
-                mMediaPlayer.setDataSource(uri)
-            }
+            val parcelFileDescriptor = Repository.getMusicFD(mMusicList[currentIndex])
+            mMediaPlayer.setDataSource(parcelFileDescriptor.fileDescriptor)
             mMediaPlayer.prepare()
             mMediaPlayer.start()
-        }catch (e:Exception){
+            parcelFileDescriptor.close()
+        } catch(e:Exception){
             Log.e("huan_MusicService","播放音乐的时候出现了异常$e")
             e.printStackTrace()
             Toast.makeText(MainActivity.mContext,"播放失败自动播放下一首",Toast.LENGTH_SHORT).show()

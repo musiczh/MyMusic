@@ -1,9 +1,7 @@
 package com.example.mymusic.view.fragment
 
-import android.content.Context
-import android.media.Image
+import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -11,8 +9,8 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.observe
 import com.example.mymusic.MainActivity
 
 import com.example.mymusic.R
@@ -59,8 +57,8 @@ class MainFragment : Fragment() {
 
     private fun initViewModel(){
         viewModel = ViewModelProvider(this).get(FraMainViewModel::class.java)
-        viewModel.musicName.observe(this){ tvMusicName.text = it }
-        viewModel.playState.observe(this){
+        viewModel.musicName.observe(viewLifecycleOwner, Observer{ tvMusicName.text = it })
+        viewModel.playState.observe (viewLifecycleOwner, Observer{
             when(it){
                 FraMainViewModel.STATE_PLAYING->{
                     mainActivity.continueMusic()
@@ -71,7 +69,7 @@ class MainFragment : Fragment() {
                     playMusicButton.background = mainActivity.getDrawable(R.drawable.play_black)
                 }
             }
-        }
+        })
         mainActivity.subscribeOnCreate("MainFragment"){
             viewModel.observer(it)
         }
@@ -91,13 +89,15 @@ class MainFragment : Fragment() {
         musicImage.setOnClickListener {
             mainActivity.navigate(R.id.playFragment)
         }
-        playMusicButton.setOnClickListener {
+        playMusicButton.setOnClickListener() {
             if (viewModel.playState.value==FraMainViewModel.STATE_PLAYING)
                 viewModel.playState.value = FraMainViewModel.STATE_PAUSE
             else if (viewModel.playState.value==FraMainViewModel.STATE_PAUSE)
                 viewModel.playState.value = FraMainViewModel.STATE_PLAYING
 
         }
+        val imageViewHis = view.findViewById<ImageView>(R.id.image_recent)
+        imageViewHis.setOnClickListener { mainActivity.navigate(R.id.historyFragment) }
     }
 
 
