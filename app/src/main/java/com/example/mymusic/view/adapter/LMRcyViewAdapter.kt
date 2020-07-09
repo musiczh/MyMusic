@@ -14,7 +14,7 @@ import com.example.mymusic.util.getTimeString
  * 2020.4.15
  */
 class LMRcyViewAdapter(private val mMusicList:ArrayList<Music>,
-                       private val clickListener:RecVItemOnclickInter):
+                       private val clickListener:RecVItemOnclickInter<Music>):
     RecyclerView.Adapter<LMRcyViewAdapter.LocalMusicHolder>() {
 
     inner class LocalMusicHolder(view: View):RecyclerView.ViewHolder(view){

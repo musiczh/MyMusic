@@ -5,6 +5,8 @@ import androidx.lifecycle.LiveData
 import com.example.mymusic.dao.AppDatabase
 import com.example.mymusic.dao.LocalMusicDao
 import com.example.mymusic.model.entity.Music
+import com.example.mymusic.model.entity.SearchMusic
+import com.example.mymusic.network.MusicNetWork
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -34,10 +36,17 @@ object  Repository {
         scope.launch {
             historyMusicDao.deleteMusic(music)
         }
-
     }
 
     fun getHisList():LiveData<List<Music>>{
         return historyMusicDao.getHisList()
+    }
+
+    suspend fun getSearchList(pagination:Int,num:Int,keyword:String):List<SearchMusic>{
+        return MusicNetWork.getSearchMusic(pagination, num, keyword)
+    }
+
+    suspend fun getPlayAddress(songmid:String):String{
+        return MusicNetWork.getPlayAddress(songmid)
     }
 }

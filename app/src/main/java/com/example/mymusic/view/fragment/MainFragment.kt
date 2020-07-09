@@ -36,18 +36,17 @@ class MainFragment : Fragment() {
         mainActivity = activity as MainActivity
         viewBinding(view)
         initViewModel()
-        initViewModelData()
         return view
     }
 
     //初始化viewModel的数据
     private fun initViewModelData(){
-        val music: Music? = mainActivity.getCurrentMusic()
-        val isPlaying = mainActivity.isPlaying()
+        val music: Music? = mainActivity.mediaService.getCurrentMusic()
+        val isPlaying = mainActivity.mediaService.isPlaying()
         music?.let {
             viewModel.musicName.value = music.name
         }
-        isPlaying?.let {
+        isPlaying.let {
             if (it) viewModel.playState.value = FraMainViewModel.STATE_PLAYING
             else  viewModel.playState.value = FraMainViewModel.STATE_PAUSE
         }
@@ -61,16 +60,16 @@ class MainFragment : Fragment() {
         viewModel.playState.observe (viewLifecycleOwner, Observer{
             when(it){
                 FraMainViewModel.STATE_PLAYING->{
-                    mainActivity.continueMusic()
+                    mainActivity.mediaService.continueMusic()
                     playMusicButton.background = mainActivity.getDrawable(R.drawable.pause_black)
                 }
                 FraMainViewModel.STATE_PAUSE->{
-                    mainActivity.pauseMusic()
+                    mainActivity.mediaService.pauseMusic()
                     playMusicButton.background = mainActivity.getDrawable(R.drawable.play_black)
                 }
             }
         })
-        mainActivity.subscribeOnCreate("MainFragment"){
+        mainActivity.mediaService.subscribeOnCreate("MainFragment"){
             viewModel.observer(it)
         }
     }
@@ -98,6 +97,9 @@ class MainFragment : Fragment() {
         }
         val imageViewHis = view.findViewById<ImageView>(R.id.image_recent)
         imageViewHis.setOnClickListener { mainActivity.navigate(R.id.historyFragment) }
+
+        val imageViewDownload = view.findViewById<ImageView>(R.id.image_download)
+        imageViewDownload.setOnClickListener { mainActivity.navigate(R.id.searchFragment) }
     }
 
 

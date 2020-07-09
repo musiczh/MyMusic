@@ -53,10 +53,10 @@ class LocalMusicFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(mainActivity)
         val list = ArrayList<Music>()
         viewModel.mMusicList .value?.let { list.addAll(it) }
-        adapter = LMRcyViewAdapter(list,object :RecVItemOnclickInter{
+        adapter = LMRcyViewAdapter(list,object :RecVItemOnclickInter<Music>{
             override fun onClick(list: ArrayList<Music>, position: Int) {
                 val arrayList = ArrayList<Music>(list)
-                mainActivity.playMusic(arrayList,position)
+                mainActivity.mediaService.playMusic(arrayList,position)
             }
             override fun doubleClick() {
             }

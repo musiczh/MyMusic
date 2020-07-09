@@ -57,7 +57,7 @@ class HistoryFragment : Fragment() {
         viewModel = ViewModelProvider(this).get(FraHisViewModel::class.java)
         viewModel.musicList.observe(viewLifecycleOwner, Observer {
             adapter.changeData(it)
-        })
+    })
         liveData = viewModel.getHisLiveData()
         liveData.observe(viewLifecycleOwner, Observer {
             viewModel.musicList.value = it.reversed()
@@ -68,10 +68,10 @@ class HistoryFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(mainActivity)
         val list = ArrayList<Music>()
         viewModel.musicList.value?.let { list.addAll(it) }
-        adapter = LMRcyViewAdapter(list,object :RecVItemOnclickInter{
+        adapter = LMRcyViewAdapter(list,object :RecVItemOnclickInter<Music>{
             override fun onClick(list: ArrayList<Music>, position: Int) {
                 val arrayList = ArrayList<Music>(list)
-                mainActivity.playMusic(arrayList,position)
+                mainActivity.mediaService.playMusic(arrayList,position)
 
             }
             override fun doubleClick() {

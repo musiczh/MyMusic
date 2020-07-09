@@ -38,21 +38,7 @@ class MusicService : Service() {
 
     }
 
-    /**
-     * 播放下一首
-     * 根据播放模式去选择下一首歌曲
-     */
-    fun playNextMusic():Boolean{
-        if (mMusicList.size==0||currentIndex==-1) return false
-        //更新下标
-        when {
-            playMode== RANDOM_MODE -> currentIndex = Random.nextInt(mMusicList.size)
-            currentIndex==mMusicList.size-1 -> currentIndex = 0
-            else -> currentIndex+=1
-        }
-        playCurrentMusic()
-        return true
-    }
+
 
     inner class MyBinder : Binder() {
         fun playMusicIndex(list:ArrayList<Music>,index:Int){
@@ -92,12 +78,45 @@ class MusicService : Service() {
 
         fun subscribe(name:String,observer:(music:Music)->Unit) = mapObservers.put(name,observer)
         fun unSubscribe(name:String) = mapObservers.remove(name)
+        fun playMusicWithUrl(url: String) = playMusicUseUrl(url)
 
 
     }
 
     override fun onBind(intent: Intent): IBinder {
         return mBinder
+    }
+
+    fun playMusicUseUrl(url:String){
+        mMediaPlayer.reset()
+        try {
+            mMediaPlayer.setDataSource(url)
+            mMediaPlayer.prepare()
+            mMediaPlayer.start()
+        }catch (e:Exception){
+            Log.e("huan_MusicService","playMusicWithUrl播放出错")
+            Toast.makeText(MainActivity.mContext,
+                    "播放出错了，自动播放下一输欧",
+                         Toast.LENGTH_SHORT).show()
+            playNextMusic()
+        }
+
+    }
+
+    /**
+     * 播放下一首
+     * 根据播放模式去选择下一首歌曲
+     */
+    fun playNextMusic():Boolean{
+        if (mMusicList.size==0||currentIndex==-1) return false
+        //更新下标
+        when {
+            playMode== RANDOM_MODE -> currentIndex = Random.nextInt(mMusicList.size)
+            currentIndex==mMusicList.size-1 -> currentIndex = 0
+            else -> currentIndex+=1
+        }
+        playCurrentMusic()
+        return true
     }
 
     /**

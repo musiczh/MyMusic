@@ -68,7 +68,7 @@ class PlayFragment : Fragment() {
         initLiveBinding()
         initViewModelData()
         startSeekTask()
-        mainActivity.subscribe("play"){
+        mainActivity.mediaService.subscribe("play"){
             viewModel.observe(it)
         }
     }
@@ -94,14 +94,14 @@ class PlayFragment : Fragment() {
 
     //初始化viewModel的数据
     private fun initViewModelData(){
-        val music: Music? = mainActivity.getCurrentMusic()
-        val cTime = mainActivity.getCurrentTime()
-        val isPlaying = mainActivity.isPlaying()
+        val music: Music? = mainActivity.mediaService.getCurrentMusic()
+        val cTime = mainActivity.mediaService.getCurrentTime()
+        val isPlaying = mainActivity.mediaService.isPlaying()
         music?.let {
             viewModel.duration.value = music.duration
             viewModel.musicName.value = music.name
         }
-        isPlaying?.let{
+        isPlaying.let{
             if  (it){
                 viewModel.currentTime.value = cTime
                 viewModel.state.value = FragmentPlayViewModel.STATE_PLAYING
@@ -122,16 +122,16 @@ class PlayFragment : Fragment() {
         buttonPrevious = view.findViewById(R.id.button_fragment_play_previous)
         buttonPlay = view.findViewById(R.id.button_fragment_play_play)
         buttonBack.setOnClickListener {mainActivity.navBackStack()}
-        buttonNext.setOnClickListener { mainActivity.playNextMusic() }
-        buttonPrevious.setOnClickListener { mainActivity.playPreviousMusic() }
+        buttonNext.setOnClickListener { mainActivity.mediaService.playNextMusic() }
+        buttonPrevious.setOnClickListener { mainActivity.mediaService.playPreviousMusic() }
         buttonPlay.setOnClickListener {
             when (viewModel.state.value) {
                 FragmentPlayViewModel.STATE_PLAYING -> {
-                    mainActivity.pauseMusic()
+                    mainActivity.mediaService.pauseMusic()
                     viewModel.state.value = FragmentPlayViewModel.STATE_PAUSE
                 }
                 FragmentPlayViewModel.STATE_PAUSE -> {
-                    mainActivity.continueMusic()
+                    mainActivity.mediaService.continueMusic()
                     viewModel.state.value  = FragmentPlayViewModel.STATE_PLAYING
                 }
             }
@@ -149,10 +149,10 @@ class PlayFragment : Fragment() {
                 ifRefreshSeekBar = true
                 if (viewModel.state.value==FragmentPlayViewModel.STATE_NULL||seekBar==null) return
                 if(viewModel.state.value==FragmentPlayViewModel.STATE_PAUSE){
-                    mainActivity.continueMusic()
+                    mainActivity.mediaService.continueMusic()
                     viewModel.state.value = FragmentPlayViewModel.STATE_PLAYING
                     }
-                mainActivity.seekTo(seekBar.progress)
+                mainActivity.mediaService.seekTo(seekBar.progress)
             }
 
         })
@@ -163,7 +163,7 @@ class PlayFragment : Fragment() {
     //进度条更新
     private fun startSeekTask(){
         scheduledFuture = setTimeTask(1){
-            val current = mainActivity.getCurrentTime()
+            val current = mainActivity.mediaService.getCurrentTime()
             val msg = Message.obtain()
             val bundle = Bundle()
             bundle.putInt("current",current)

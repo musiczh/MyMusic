@@ -18,6 +18,9 @@
         <action
             android:id="@+id/action_mainFragment_to_historyFragment2"
             app:destination="@id/historyFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_searchFragment"
+            app:destination="@+id/searchFragment"/>
     </fragment>
 
     <fragment
@@ -34,5 +37,9 @@
         android:id="@+id/historyFragment"
         android:name="com.example.mymusic.view.fragment.HistoryFragment"
         android:label="HistoryFragment" />
+    <fragment
+        android:id="@+id/searchFragment"
+        android:name="com.example.mymusic.view.fragment.SearchFragment"
+        android:label="SearchFragment"/>
 
 </navigation>

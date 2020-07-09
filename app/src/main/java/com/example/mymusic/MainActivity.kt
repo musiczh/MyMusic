@@ -15,26 +15,30 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
-import com.example.mymusic.model.entity.Music
 import com.example.mymusic.service.MusicService
+import com.example.mymusic.view.activity.MediaService
 
 
 class MainActivity : AppCompatActivity() {
     companion object{
         lateinit var mContext: Context
     }
-    private val mapObservers = HashMap<String,(music:Music)->Unit>()
 
+    val mediaService = MediaService()
     private lateinit var navController : NavController
-    private  var mBinder : MusicService.MyBinder? = null
     private  var toast: Toast? = null
 
     private val connection = object : ServiceConnection{
         override fun onServiceDisconnected(name: ComponentName?) {}
         override fun onServiceConnected(name: ComponentName?, service: IBinder?){
-            mBinder = service as MusicService.MyBinder
-            for (mapObserver in mapObservers) {
-                mBinder?.subscribe(mapObserver.key,mapObserver.value)
+            if(service == null){
+                Log.e("huan_MainActvity","服务返回的IBinder==null")
+                showToast("程序出现异常请重启")
+                this@MainActivity.finish()
+            }else{
+                val mBinder = service as MusicService.MyBinder
+                mediaService.setBinder(mBinder)
+                mediaService.putObserve()
             }
         }
     }
@@ -43,29 +47,14 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         mContext = applicationContext
-
+        requestPermissions()
         val intentService = Intent(this,MusicService::class.java)
         bindService(intentService,connection,Context.BIND_AUTO_CREATE)
-
         navController = findNavController(this,R.id.main_fragment_container)
     }
 
     fun navigate(id:Int) = navController.navigate(id)
     fun navBackStack() = navController.popBackStack()
-    fun playMusic(list:ArrayList<Music> , position:Int){
-        Log.d("MainActivity","播放音乐$position")
-        mBinder?.playMusicIndex(list,position) }
-    fun playNextMusic() = mBinder?.nextMusic()
-    fun playPreviousMusic() = mBinder?.previousMusic()
-    fun pauseMusic() = mBinder?.pausePlay()
-    fun continueMusic() = mBinder?.continuePlay()
-    fun getCurrentTime():Int = mBinder?.currentTime() ?: -1
-    fun subscribe(name: String,observer:(music:Music)->Unit) = mBinder?.subscribe(name,observer)
-    fun subscribeOnCreate(name: String,observer:(music:Music)->Unit) = mapObservers.put(name,observer)
-    fun unSubscribe(name:String) = mBinder?.unSubscribe(name)
-    fun getCurrentMusic() = mBinder?.getCurrentMusic()
-    fun isPlaying() = mBinder?.isPlaying()
-    fun seekTo(progress:Int)=mBinder?.seekToProcess(progress)
 
     fun showToast(string:String){
         if (toast==null) toast = Toast.makeText(this,string,Toast.LENGTH_SHORT)
